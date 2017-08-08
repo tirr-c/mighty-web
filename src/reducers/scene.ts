@@ -8,26 +8,42 @@ export const enum Scene {
 }
 
 export type State = {
-    scene: Scene
+    scene: Scene,
+    connected: boolean
 }
 
 const initialState: State = {
-    scene: Scene.Connecting
+    scene: Scene.Connecting,
+    connected: false
 };
 
 export function reduce(state = initialState, action: Action): State {
     switch (action.type) {
-        case 'connection-connected':
+        case 'connected':
         if (state.scene === Scene.Connecting) {
-            return { scene: Scene.Login };
+            return { scene: Scene.Login, connected: true };
+        } else {
+            return { ...state, connected: true };
+        }
+        case 'disconnected':
+        return { ...state, connected: false };
+        case 'nickname-change-succeed':
+        if (state.scene === Scene.Login) {
+            return { ...state, scene: Scene.Lobby };
         } else {
             return state;
         }
-        case 'user-nickname-change-succeed':
-        if (state.scene === Scene.Login) {
-            return { scene: Scene.Lobby };
-        } else {
+        case 'join-room':
+        if ('userId' in action) {
             return state;
+        } else {
+            return { ...state, scene: Scene.Room };
+        }
+        case 'leave-room':
+        if ('userId' in action) {
+            return state;
+        } else {
+            return { ...state, scene: Scene.Lobby };
         }
         default:
         return state;

@@ -2,7 +2,8 @@ import io = require('socket.io-client');
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { reduce } from './reducers';
-import { User, Connection } from './actions';
+import { User, Connection, Room } from './actions';
+import { Scene } from './reducers/scene';
 
 const store = createStore(
     reduce,
@@ -19,6 +20,10 @@ store.subscribe(() => {
 store.dispatch(Connection.connect(socket)).then(() => {
     return store.dispatch(User.requestNicknameChange(socket, 'Tirr')).catch(() => {
         console.error('Failed to change nickname');
+    });
+}).then(() => {
+    return store.dispatch(Room.updateRoomList(socket)).catch(() => {
+        console.error('Failed to update room list');
     });
 }).catch(() => {
     console.error('Failed to connect');
