@@ -5,8 +5,15 @@ const cssnext = require('postcss-cssnext');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
+const babelLoader = {
+    loader: 'babel-loader',
+    options: {
+        presets: [['env', { targets: { uglify: true } }]]
+    }
+};
+
 const common = {
-    entry: ['babel-polyfill', './src/app.ts'],
+    entry: ['babel-polyfill', './src/app.tsx'],
     output: {
         filename: 'static-[hash].js',
         path: path.resolve(__dirname, 'dist')
@@ -16,27 +23,23 @@ const common = {
         new HtmlWebpackPlugin({ template: 'src/index.html' })
     ],
     resolve: {
-        extensions: ['.ts', '.js']
+        extensions: ['.ts', '.tsx', '.js']
     },
     module: {
         rules: [
             {
                 test: /\.js$/,
                 exclude: /node_modules/,
-                loader: 'babel-loader',
-                options: {
-                    presets: [['env', { targets: { uglify: true } }]]
-                }
+                use: [
+                    babelLoader,
+                    'source-map-loader'
+                ]
             },
             {
-                test: /\.ts$/,
+                test: /\.tsx?$/,
                 use: [
-                    {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: [['env', { targets: { uglify: true } }]]
-                        }
-                    },
+                    babelLoader,
+                    'source-map-loader',
                     'ts-loader'
                 ]
             },

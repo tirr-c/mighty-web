@@ -25,9 +25,14 @@ interface LeaveRoomAction {
 }
 export type Action = UpdateRoomListAction | JoinRoomAction | LeaveRoomAction;
 
-export function updateRoomList(socket: SocketIOClient.Socket) {
-    return (dispatch: (action: Action) => Action): Promise<void> => {
+export function updateRoomList() {
+    return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
         return new Promise((resolve, reject) => {
+            const socket = getState().socket;
+            if (socket === null) {
+                reject();
+                return;
+            }
             socket.emit('room-list', (list: string[]) => {
                 dispatch({
                     type: 'update-room-list',
@@ -39,9 +44,14 @@ export function updateRoomList(socket: SocketIOClient.Socket) {
     };
 }
 
-export function createRoom(socket: SocketIOClient.Socket) {
-    return (dispatch: (action: Action) => Action): Promise<void> => {
+export function createRoom() {
+    return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
         return new Promise((resolve, reject) => {
+            const socket = getState().socket;
+            if (socket === null) {
+                reject();
+                return;
+            }
             socket.emit('create-room', (roomId: string | null) => {
                 if (roomId === null) {
                     reject();
