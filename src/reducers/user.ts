@@ -19,17 +19,17 @@ export function reduce(state = initialState, action: Action): State {
         case 'nickname-change-succeed':
         return { ...state, nickname: action.nickname, nicknameUpdating: false };
         case 'join-room': {
-            if (!('userId' in action)) {
-                return { ...state, roomId: action.roomId };
-            } else {
+            if ('userId' in action) {
                 return state;
+            } else {
+                return { ...state, roomId: action.roomId };
             }
         }
         case 'leave-room': {
-            if (!('userId' in action)) {
-                return { ...state, roomId: '' };
-            } else {
+            if ('userId' in action) {
                 return state;
+            } else {
+                return { ...state, roomId: '' };
             }
         }
         default:

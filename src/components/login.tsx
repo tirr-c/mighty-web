@@ -35,8 +35,7 @@ class LoginForm extends React.Component<Props, State> {
             this.setState({
                 edited: false
             });
-            this.props.requestNicknameChange(this.state.nickname).then(() => {
-            }).catch(console.error);
+            this.props.requestNicknameChange(this.state.nickname).catch(console.error);
         };
     }
 

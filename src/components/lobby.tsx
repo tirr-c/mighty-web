@@ -17,13 +17,11 @@ class Lobby extends React.Component<Props> {
     }
 
     render() {
-        const roomList = this.props.roomList.map(room => {
-            return (
-                <div key={`room-${room.id}`}>
-                    <a onClick={() => this.props.joinRoom(room.id)}>{room.name}</a>
-                </div>
-            );
-        });
+        const roomList = this.props.roomList.map(room =>
+            <div key={`room-${room.id}`}>
+                <a onClick={() => this.props.joinRoom(room.id)}>{room.name}</a>
+            </div>
+        );
         const roomEmpty = <div>방이 없습니다</div>
         const roomListDisplay = roomList.length > 0 ? roomList : roomEmpty;
         return (
@@ -41,12 +39,12 @@ class Lobby extends React.Component<Props> {
 }
 
 function mapStateToProps(state: State) {
-    const roomList = state.lobby.roomIds.map(id => {
-        return {
+    const roomList = state.lobby.roomIds.map(id => (
+        {
             id: id,
             name: state.lobby.roomNameCache[id]
-        };
-    });
+        }
+    ));
     return {
         roomList: roomList
     };
