@@ -50,7 +50,7 @@ class LoginForm extends React.Component<Props, State> {
             <div>
                 <div>새 닉네임을 입력하세요</div>
                 <input type="text" disabled={this.props.updating} onChange={this.onNicknameChange} />
-                <button value="변경" onClick={this.updateNickname} />
+                <button onClick={this.updateNickname}>변경</button>
             </div>
         );
     }

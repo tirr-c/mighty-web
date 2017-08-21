@@ -68,9 +68,14 @@ export function createRoom() {
     };
 }
 
-export function joinRoom(socket: SocketIOClient.Socket, roomId: string) {
-    return (dispatch: (action: Action) => Action): Promise<void> => {
+export function joinRoom(roomId: string) {
+    return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
         return new Promise((resolve, reject) => {
+            const socket = getState().socket;
+            if (socket === null) {
+                reject();
+                return;
+            }
             socket.emit('join-room', (users: string[] | null) => {
                 if (users === null) {
                     reject();
@@ -86,9 +91,14 @@ export function joinRoom(socket: SocketIOClient.Socket, roomId: string) {
     };
 }
 
-export function leaveRoom(socket: SocketIOClient.Socket) {
+export function leaveRoom() {
     return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
         return new Promise((resolve, reject) => {
+            const socket = getState().socket;
+            if (socket === null) {
+                reject();
+                return;
+            }
             socket.emit('leave-room', (succeed: boolean) => {
                 if (succeed) {
                     dispatch({

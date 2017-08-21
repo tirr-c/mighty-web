@@ -17,7 +17,7 @@ export function reduce(state = initialState, action: Action): State {
         case 'update-room-list': {
             const ids = action.rooms.map(x => x.id);
             const cache = action.rooms.reduce<RoomNameCache>(
-                (c, x) => { c[x.id] = name; return c; },
+                (c, x) => { c[x.id] = x.name; return c; },
                 {}
             );
             return {
