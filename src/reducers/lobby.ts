@@ -31,6 +31,6 @@ export function reduce(state = initialState, action: Action): State {
             };
         }
         default:
-        return state;
+            return state;
     }
 }

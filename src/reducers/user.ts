@@ -13,10 +13,10 @@ const initialState: State = {
 export function reduce(state = initialState, action: Action): State {
     switch (action.type) {
         case 'nickname-change-request':
-        return { ...state, nicknameUpdating: true };
+            return { ...state, nicknameUpdating: true };
         case 'nickname-change-succeed':
-        return { ...state, nickname: action.nickname, nicknameUpdating: false };
+            return { ...state, nickname: action.nickname, nicknameUpdating: false };
         default:
-        return state;
+            return state;
     }
 }

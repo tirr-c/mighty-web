@@ -7,8 +7,8 @@ const initialState: State = null;
 export function reduce(state = initialState, action: Action) {
     switch (action.type) {
         case 'connected':
-        return action.socket;
+            return action.socket;
         default:
-        return state;
+            return state;
     }
 }
