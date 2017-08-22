@@ -1,12 +1,15 @@
 import { State } from '../reducers';
 
-export type ActionType = 'update-room-list' | 'join-room' | 'leave-room';
+export type ActionType = 'update-room-list-request' | 'update-room-list' | 'join-room' | 'leave-room';
 
 export interface NetworkRoomInfo {
     id: string,
     name: string
 }
 
+interface UpdateRoomListRequestAction {
+    type: 'update-room-list-request'
+}
 interface UpdateRoomListAction {
     type: 'update-room-list',
     rooms: NetworkRoomInfo[]
@@ -23,7 +26,7 @@ interface LeaveRoomAction {
     userId?: string,
     userList?: string[]
 }
-export type Action = UpdateRoomListAction | JoinRoomAction | LeaveRoomAction;
+export type Action = UpdateRoomListRequestAction | UpdateRoomListAction | JoinRoomAction | LeaveRoomAction;
 
 export function updateRoomList() {
     return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
@@ -33,6 +36,9 @@ export function updateRoomList() {
                 reject();
                 return;
             }
+            dispatch({
+                type: 'update-room-list-request'
+            });
             socket.emit('room-list', (list: string[]) => {
                 dispatch({
                     type: 'update-room-list',
@@ -76,7 +82,7 @@ export function joinRoom(roomId: string) {
                 reject();
                 return;
             }
-            socket.emit('join-room', (users: string[] | null) => {
+            socket.emit('join-room', roomId, (users: string[] | null) => {
                 if (users === null) {
                     reject();
                     return;
@@ -103,7 +109,7 @@ export function leaveRoom() {
                 if (succeed) {
                     dispatch({
                         type: 'leave-room',
-                        roomId: getState().user.roomId
+                        roomId: getState().room.id
                     });
                     resolve();
                 } else {

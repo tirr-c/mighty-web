@@ -4,16 +4,20 @@ type RoomNameCache = { [roomId: string]: string };
 
 export type State = {
     roomIds: string[],
-    roomNameCache: RoomNameCache
+    roomNameCache: RoomNameCache,
+    roomUpdating: boolean
 }
 
 const initialState: State = {
     roomIds: [],
-    roomNameCache: {}
+    roomNameCache: {},
+    roomUpdating: false
 };
 
 export function reduce(state = initialState, action: Action): State {
     switch (action.type) {
+        case 'update-room-list-request':
+            return { ...state, roomUpdating: true };
         case 'update-room-list': {
             const ids = action.rooms.map(x => x.id);
             const cache = action.rooms.reduce<RoomNameCache>(
@@ -22,7 +26,8 @@ export function reduce(state = initialState, action: Action): State {
             );
             return {
                 roomIds: ids,
-                roomNameCache: { ...state.roomNameCache, ...cache }
+                roomNameCache: { ...state.roomNameCache, ...cache },
+                roomUpdating: false
             };
         }
         default:

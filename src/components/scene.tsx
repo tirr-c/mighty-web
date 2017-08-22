@@ -5,6 +5,7 @@ import { State } from '../reducers';
 import { Scene } from '../reducers/scene';
 import LoginForm from './login';
 import Lobby from './lobby';
+import Room from './room';
 
 type Props = {
     scene: Scene
@@ -15,6 +16,7 @@ class SceneManager extends React.Component<Props> {
         switch (this.props.scene) {
             case Scene.Login: return <LoginForm />;
             case Scene.Lobby: return <Lobby />;
+            case Scene.Room: return <Room />;
             default: return <div />;
         }
     }

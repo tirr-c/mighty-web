@@ -6,6 +6,7 @@ import { Room } from '../actions';
 
 type Props = {
     roomList: [{ id: string, name: string }],
+    roomListUpdating: boolean,
     updateRoomList: () => Promise<void>,
     createRoom: () => Promise<void>,
     joinRoom: (roomId: string) => Promise<void>
@@ -13,7 +14,7 @@ type Props = {
 
 class Lobby extends React.Component<Props> {
     componentDidMount() {
-        this.refresh();
+        this.props.updateRoomList();
     }
 
     render() {
@@ -22,19 +23,19 @@ class Lobby extends React.Component<Props> {
                 <a onClick={() => this.props.joinRoom(room.id)}>{room.name}</a>
             </div>
         );
-        const roomEmpty = <div>방이 없습니다</div>
-        const roomListDisplay = roomList.length > 0 ? roomList : roomEmpty;
+        const roomEmpty = <div>방이 없습니다</div>;
+        const roomUpdating = <div>로딩 중...</div>;
+        const roomListDisplay =
+            this.props.roomListUpdating ?
+            roomUpdating :
+            roomList.length > 0 ? roomList : roomEmpty;
         return (
             <div id="room-list">
                 {roomListDisplay}
-                <button onClick={this.refresh}>새로고침</button>
+                <button disabled={this.props.roomListUpdating} onClick={this.props.updateRoomList}>새로고침</button>
                 <button onClick={this.props.createRoom}>새 방 만들기</button>
             </div>
         );
-    }
-
-    refresh() {
-        return this.props.updateRoomList();
     }
 }
 
@@ -46,7 +47,8 @@ function mapStateToProps(state: State) {
         }
     ));
     return {
-        roomList: roomList
+        roomList: roomList,
+        roomListUpdating: state.lobby.roomUpdating
     };
 }
 
