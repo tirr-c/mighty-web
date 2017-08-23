@@ -54,9 +54,9 @@ function mapStateToProps(state: State) {
 
 function mapDispatchToProps(dispatch: any) {
     return {
-        updateRoomList: () => dispatch(Room.updateRoomList()),
-        createRoom: () => dispatch(Room.createRoom()),
-        joinRoom: (roomId: string) => dispatch(Room.joinRoom(roomId))
+        updateRoomList: () => dispatch(Room.updateRoomList()).catch(console.error),
+        createRoom: () => dispatch(Room.createRoom()).catch(console.error),
+        joinRoom: (roomId: string) => dispatch(Room.joinRoom(roomId)).catch(console.error)
     };
 }
 

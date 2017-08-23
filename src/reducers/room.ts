@@ -14,6 +14,7 @@ export function reduce(state = initialState, action: Action): State {
     switch (action.type) {
         case 'join-room': {
             if ('userId' in action) {
+                if (state.id !== action.roomId) return state;
                 return { ...state, members: action.userList };
             } else {
                 return { ...state, id: action.roomId, members: action.userList };
@@ -21,6 +22,7 @@ export function reduce(state = initialState, action: Action): State {
         }
         case 'leave-room': {
             if ('userId' in action) {
+                if (state.id !== action.roomId) return state;
                 return { ...state, members: action.userList };
             } else {
                 return { id: '', members: [] }; // reset
