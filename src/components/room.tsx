@@ -24,8 +24,8 @@ class Room extends React.Component<Props> {
 
 function mapStateToProps(state: State) {
     return {
-        roomId: state.room.id,
-        roomMembers: state.room.members
+        roomId: state.game.id,
+        roomMembers: state.game.members
     };
 }
 

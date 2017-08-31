@@ -1,19 +1,7 @@
 import { State } from '../reducers';
 
-export type ActionType = 'update-room-list-request' | 'update-room-list' | 'join-room' | 'leave-room';
+export type ActionType = 'join-room' | 'leave-room';
 
-export interface NetworkRoomInfo {
-    id: string,
-    name: string
-}
-
-interface UpdateRoomListRequestAction {
-    type: 'update-room-list-request'
-}
-interface UpdateRoomListAction {
-    type: 'update-room-list',
-    rooms: NetworkRoomInfo[]
-}
 interface JoinRoomAction {
     type: 'join-room',
     roomId: string,
@@ -26,29 +14,7 @@ interface LeaveRoomAction {
     userId?: string,
     userList?: string[]
 }
-export type Action = UpdateRoomListRequestAction | UpdateRoomListAction | JoinRoomAction | LeaveRoomAction;
-
-export function updateRoomList() {
-    return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            const socket = getState().socket;
-            if (socket === null) {
-                reject();
-                return;
-            }
-            dispatch({
-                type: 'update-room-list-request'
-            });
-            socket.emit('room-list', (list: string[]) => {
-                dispatch({
-                    type: 'update-room-list',
-                    rooms: list.map(x => ({ id: x, name: x }))
-                });
-                resolve();
-            });
-        });
-    };
-}
+export type Action = JoinRoomAction | LeaveRoomAction;
 
 function listenJoin(roomId: string, socket: SocketIOClient.Socket, dispatch: (action: Action) => Action) {
     socket.on('join-room', (userId: string, userList: string[]) => {
@@ -132,7 +98,7 @@ export function leaveRoom() {
                     socket.off('leave-room');
                     dispatch({
                         type: 'leave-room',
-                        roomId: getState().room.id
+                        roomId: getState().game.id
                     });
                     resolve();
                 } else {

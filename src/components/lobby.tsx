@@ -2,7 +2,7 @@ import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { State } from '../reducers';
-import { Room } from '../actions';
+import { Lobby, Game } from '../actions';
 
 type Props = {
     roomList: [{ id: string, name: string }],
@@ -12,7 +12,7 @@ type Props = {
     joinRoom: (roomId: string) => Promise<void>
 };
 
-class Lobby extends React.Component<Props> {
+class LobbyView extends React.Component<Props> {
     componentDidMount() {
         this.props.updateRoomList();
     }
@@ -54,10 +54,10 @@ function mapStateToProps(state: State) {
 
 function mapDispatchToProps(dispatch: any) {
     return {
-        updateRoomList: () => dispatch(Room.updateRoomList()).catch(console.error),
-        createRoom: () => dispatch(Room.createRoom()).catch(console.error),
-        joinRoom: (roomId: string) => dispatch(Room.joinRoom(roomId)).catch(console.error)
+        updateRoomList: () => dispatch(Lobby.updateRoomList()).catch(console.error),
+        createRoom: () => dispatch(Game.createRoom()).catch(console.error),
+        joinRoom: (roomId: string) => dispatch(Game.joinRoom(roomId)).catch(console.error)
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Lobby);
+export default connect(mapStateToProps, mapDispatchToProps)(LobbyView);

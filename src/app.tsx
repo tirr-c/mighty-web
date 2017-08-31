@@ -5,7 +5,7 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { reduce } from './reducers';
-import { User, Connection, Room } from './actions';
+import { Connection } from './actions';
 import { SceneView } from './components';
 
 const store = createStore(

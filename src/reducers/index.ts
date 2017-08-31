@@ -2,7 +2,7 @@ import * as User from './user';
 import * as Scene from './scene';
 import * as Lobby from './lobby';
 import * as Socket from './socket';
-import * as Room from './room';
+import * as Game from './game';
 import { combineReducers } from 'redux';
 
 export type State = {
@@ -10,7 +10,7 @@ export type State = {
     scene: Scene.State,
     lobby: Lobby.State,
     socket: Socket.State,
-    room: Room.State
+    game: Game.State
 };
 
 export const reduce = combineReducers<State>({
@@ -18,5 +18,5 @@ export const reduce = combineReducers<State>({
     scene: Scene.reduce,
     lobby: Lobby.reduce,
     socket: Socket.reduce,
-    room: Room.reduce
+    game: Game.reduce
 });
