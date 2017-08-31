@@ -1,6 +1,7 @@
 import { State } from '../reducers';
+import { Card } from '../utils';
 
-export type ActionType = 'member-state-changed' | 'join-room' | 'leave-room' | 'ready';
+export type ActionType = 'member-state-changed' | 'join-room' | 'leave-room' | 'ready' | 'reset' | 'deal';
 
 type MemberState = {
     id: string,
@@ -27,7 +28,14 @@ interface ReadyAction {
     roomId: string;
     userId: string;
 }
-export type Action = MemberStateChangedAction | JoinRoomAction | LeaveRoomAction | ReadyAction;
+interface ResetAction {
+    type: 'reset';
+}
+interface DealAction {
+    type: 'deal';
+    cards: Card[];
+}
+export type Action = MemberStateChangedAction | JoinRoomAction | LeaveRoomAction | ReadyAction | ResetAction | DealAction;
 
 function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: (action: Action) => Action) {
     socket.on('join-room', (userId: string, userList: MemberState[]) => {
@@ -63,6 +71,21 @@ function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: (action
         dispatch({
             type: 'member-state-changed',
             userList: userList
+        });
+    });
+    socket.on('reset', () => {
+        dispatch({
+            type: 'reset'
+        });
+    });
+    socket.on('deal', (cards: string[]) => {
+        const cardObjects = cards.map(Card.fromCardCode).filter(x => x !== null);
+        if (cardObjects.length !== 10) {
+            console.error('!!! Received invalid card code');
+        }
+        dispatch({
+            type: 'deal',
+            cards: cardObjects
         });
     });
 }
