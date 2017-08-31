@@ -1,38 +1,75 @@
 import { State } from '../reducers';
 
-export type ActionType = 'join-room' | 'leave-room';
+export type ActionType = 'member-state-changed' | 'join-room' | 'leave-room' | 'ready';
 
+type MemberState = {
+    id: string,
+    ready: boolean
+};
+
+interface MemberStateChangedAction {
+    type: 'member-state-changed';
+    userList: MemberState[];
+}
 interface JoinRoomAction {
-    type: 'join-room',
-    roomId: string,
-    userId?: string,
-    userList: string[]
+    type: 'join-room';
+    roomId: string;
+    userId?: string;
 }
 interface LeaveRoomAction {
-    type: 'leave-room',
-    roomId: string,
-    userId?: string,
-    userList?: string[]
+    type: 'leave-room';
+    roomId: string;
+    userId?: string;
 }
-export type Action = JoinRoomAction | LeaveRoomAction;
+interface ReadyAction {
+    type: 'ready';
+    ready: boolean;
+    roomId: string;
+    userId: string;
+}
+export type Action = MemberStateChangedAction | JoinRoomAction | LeaveRoomAction | ReadyAction;
 
-function listenJoin(roomId: string, socket: SocketIOClient.Socket, dispatch: (action: Action) => Action) {
-    socket.on('join-room', (userId: string, userList: string[]) => {
+function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: (action: Action) => Action) {
+    socket.on('join-room', (userId: string, userList: MemberState[]) => {
+        console.log('join-room', userId, userList);
         dispatch({
             type: 'join-room',
             roomId,
-            userId,
-            userList
+            userId
+        });
+        dispatch({
+            type: 'member-state-changed',
+            userList: userList
         });
     });
-    socket.on('leave-room', (userId: string, userList: string[]) => {
+    socket.on('leave-room', (userId: string, userList: MemberState[]) => {
         dispatch({
             type: 'leave-room',
             roomId,
-            userId,
-            userList
+            userId
+        });
+        dispatch({
+            type: 'member-state-changed',
+            userList: userList
         });
     });
+    socket.on('ready', (user: MemberState, userList: MemberState[]) => {
+        dispatch({
+            type: 'ready',
+            ready: user.ready,
+            roomId: roomId,
+            userId: user.id
+        });
+        dispatch({
+            type: 'member-state-changed',
+            userList: userList
+        });
+    });
+}
+function unlisten(socket: SocketIOClient.Socket) {
+    socket.off('join-room');
+    socket.off('leave-room');
+    socket.off('ready');
 }
 
 export function createRoom() {
@@ -40,7 +77,7 @@ export function createRoom() {
         return new Promise((resolve, reject) => {
             const socket = getState().socket;
             if (socket === null) {
-                reject();
+                reject('Not connected to server');
                 return;
             }
             socket.emit('create-room', (roomId: string | null) => {
@@ -48,11 +85,10 @@ export function createRoom() {
                     reject(`Creating room failed`);
                     return;
                 }
-                listenJoin(roomId, socket, dispatch);
+                listen(roomId, socket, dispatch);
                 dispatch({
                     type: 'join-room',
-                    roomId: roomId,
-                    userList: [socket.id]
+                    roomId: roomId
                 });
                 resolve();
             });
@@ -65,20 +101,20 @@ export function joinRoom(roomId: string) {
         return new Promise((resolve, reject) => {
             const socket = getState().socket;
             if (socket === null) {
-                reject();
+                reject('Not connected to server');
                 return;
             }
-            socket.emit('join-room', roomId, (users: string[] | null) => {
-                if (users === null) {
+            socket.emit('join-room', roomId, (succeed: boolean) => {
+                if (!succeed) {
                     reject(`Joining room #${roomId} failed`);
                     return;
                 }
-                listenJoin(roomId, socket, dispatch);
+                listen(roomId, socket, dispatch);
                 dispatch({
                     type: 'join-room',
-                    roomId: roomId,
-                    userList: users
+                    roomId: roomId
                 });
+                resolve();
             });
         });
     };
@@ -89,13 +125,12 @@ export function leaveRoom() {
         return new Promise((resolve, reject) => {
             const socket = getState().socket;
             if (socket === null) {
-                reject();
+                reject('Not connected to server');
                 return;
             }
             socket.emit('leave-room', (succeed: boolean) => {
                 if (succeed) {
-                    socket.off('join-room');
-                    socket.off('leave-room');
+                    unlisten(socket);
                     dispatch({
                         type: 'leave-room',
                         roomId: getState().game.id
@@ -104,6 +139,25 @@ export function leaveRoom() {
                 } else {
                     reject(`Leaving room failed`);
                 }
+            });
+        });
+    };
+}
+
+export function setReady(ready: boolean) {
+    return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            const socket = getState().socket;
+            if (socket === null) {
+                reject('Not connected to server');
+                return;
+            }
+            socket.emit('ready', ready, (succeed: boolean) => {
+                if (!succeed) {
+                    reject('Changing ready state failed');
+                    return;
+                }
+                resolve();
             });
         });
     };
