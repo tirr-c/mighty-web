@@ -1,7 +1,9 @@
 import { State } from '../reducers';
-import { Card } from '../utils';
+import { GamePhase } from '../reducers/game';
+import { Card, Giruda } from '../utils';
 
-export type ActionType = 'member-state-changed' | 'join-room' | 'leave-room' | 'ready' | 'reset' | 'deal';
+export type ActionType = 'member-state-changed' | 'join-room' | 'leave-room' | 'ready' |
+    'reset' | 'deal' | 'pending-commit' | 'waiting-president' | 'floor-cards';
 
 type MemberState = {
     id: string,
@@ -35,7 +37,19 @@ interface DealAction {
     type: 'deal';
     cards: Card[];
 }
-export type Action = MemberStateChangedAction | JoinRoomAction | LeaveRoomAction | ReadyAction | ResetAction | DealAction;
+interface PendingCommitAction {
+    type: 'pending-commit';
+    userId: string;
+}
+interface WaitingPresidentAction {
+    type: 'waiting-president';
+}
+interface FloorCardsAction {
+    type: 'floor-cards';
+    cards: Card[]
+}
+export type Action = MemberStateChangedAction | JoinRoomAction | LeaveRoomAction | ReadyAction |
+    ResetAction | DealAction | PendingCommitAction | WaitingPresidentAction | FloorCardsAction;
 
 function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: (action: Action) => Action) {
     socket.on('join-room', (userId: string, userList: MemberState[]) => {
@@ -86,6 +100,23 @@ function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: (action
         dispatch({
             type: 'deal',
             cards: cardObjects
+        });
+    });
+    socket.on('commitment-request', (userId: string) => {
+        dispatch({
+            type: 'pending-commit',
+            userId: userId
+        });
+    });
+    socket.on('waiting-president', () => {
+        dispatch({
+            type: 'waiting-president'
+        });
+    });
+    socket.on('floor-cards', (cards: string[]) => {
+        dispatch({
+            type: 'floor-cards',
+            cards: cards.map(Card.fromCardCode)
         });
     });
 }
@@ -184,4 +215,62 @@ export function setReady(ready: boolean) {
             });
         });
     };
+}
+
+export function decideDealMiss(dealMiss: boolean) {
+    return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            const state = getState();
+            const socket = state.socket;
+            if (socket === null) {
+                reject('Not connected to server');
+                return;
+            }
+            if (state.game.gameState.phase !== GamePhase.PendingDealMiss) {
+                reject('Not allowed to claim deal miss');
+                return;
+            }
+            socket.emit('deal-miss', dealMiss, (succeed: boolean) => {
+                if (!succeed) {
+                    reject('Not allowed to claim deal miss');
+                    return;
+                }
+                resolve();
+            })
+        })
+    };
+}
+
+function commitInternal(obj: any) {
+    return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
+        return new Promise((resolve, reject) => {
+            const state = getState();
+            const socket = state.socket;
+            if (socket === null) {
+                reject('Not connected to server');
+                return;
+            }
+            if (
+                state.game.gameState.phase !== GamePhase.PendingCommitment ||
+                state.game.gameState.currentTurn !== state.socket.id
+            ) {
+                reject('It\'s not your turn');
+                return;
+            }
+            socket.emit('commitment', obj, (succeed: boolean) => {
+                if (!succeed) {
+                    reject('Invalid commitment');
+                    return;
+                }
+                resolve();
+            });
+        });
+    };
+}
+
+export function commit(giruda: Giruda, score: number) {
+    return commitInternal({ giruda: giruda, score: score });
+}
+export function commitGiveup() {
+    return commitInternal(null);
 }

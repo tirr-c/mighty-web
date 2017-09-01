@@ -1,1 +1,1 @@
-export { Card } from './card';
+export { Card, Giruda } from './card';

@@ -3,12 +3,19 @@ import { Card } from '../utils';
 
 export const enum GamePhase {
     Ready,
-    PendingDealMiss
+    PendingDealMiss,
+    DoneDealMiss,
+    PendingCommitment,
+    WaitingPresident,
+    CheckCards,
+    Play,
+    Result
 };
 
 export type GameState = {
     phase: GamePhase,
-    cards: Card[]
+    cards: Card[],
+    currentTurn: string
 };
 export type State = {
     id: string,
@@ -19,7 +26,8 @@ export type State = {
 
 const initialGameState: GameState = {
     phase: GamePhase.Ready,
-    cards: []
+    cards: [],
+    currentTurn: ''
 };
 const initialState: State = {
     id: '',
@@ -59,9 +67,36 @@ export function reduce(state = initialState, action: Action): State {
             return { ...state, gameState: initialGameState };
         }
         case 'deal': {
+            const dealPoint = action.cards.map(x => x.dealPoint).reduce((point, x) => point + x, 0);
+            const nextPhase = dealPoint > 0 ? GamePhase.DoneDealMiss : GamePhase.PendingDealMiss;
             const gameState = {
-                phase: GamePhase.PendingDealMiss,
-                cards: action.cards
+                phase: nextPhase,
+                cards: action.cards,
+                currentTurn: ''
+            };
+            return { ...state, gameState: gameState };
+        }
+        case 'pending-commit': {
+            const gameState = {
+                ...state.gameState,
+                phase: GamePhase.PendingCommitment,
+                currentTurn: action.userId
+            };
+            return { ...state, gameState: gameState };
+        }
+        case 'waiting-president': {
+            const gameState = {
+                ...state.gameState,
+                phase: GamePhase.WaitingPresident,
+                currentTurn: ''
+            };
+            return { ...state, gameState: gameState };
+        }
+        case 'floor-cards': {
+            const gameState = {
+                phase: GamePhase.CheckCards,
+                cards: state.gameState.cards.concat(action.cards),
+                currentTurn: ''
             };
             return { ...state, gameState: gameState };
         }
