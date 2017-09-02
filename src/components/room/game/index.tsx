@@ -1,13 +1,16 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Game as GameAction } from '~actions';
 import { State } from '~reducers';
 import { GamePhase } from '~reducers/game';
 import { Card } from '~utils';
+import DealMissControl from './deal-miss';
 
 type Props = {
     phase: GamePhase,
     myTurn: boolean,
-    cards: Card[]
+    cards: Card[],
+    decideDealMiss: (dealMiss: boolean) => Promise<void>
 };
 
 class Game extends React.Component<Props> {
@@ -44,6 +47,7 @@ class Game extends React.Component<Props> {
             <div>
                 {phase}
                 {cardList}
+                {this.props.phase === GamePhase.PendingDealMiss ? <DealMissControl onDecide={this.props.decideDealMiss} /> : null}
             </div>
         );
     }
@@ -58,4 +62,10 @@ function mapStateToProps(state: State) {
     };
 }
 
-export default connect(mapStateToProps, null)(Game);
+function mapDispatchToProps(dispatch: any) {
+    return {
+        decideDealMiss: (dealMiss: boolean) => dispatch(GameAction.decideDealMiss(dealMiss))
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Game);

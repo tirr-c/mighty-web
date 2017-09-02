@@ -64,7 +64,12 @@ export function reduce(state = initialState, action: Action): State {
             return { ...state, members: members, ready: ready };
         }
         case 'reset': {
-            return { ...state, gameState: initialGameState };
+            const ready = state.members.map(
+                x => ({ [x]: false })
+            ).reduce(
+                (ready, x) => ({ ...ready, ...x }), {}
+            );
+            return { ...state, ready: ready, gameState: initialGameState };
         }
         case 'deal': {
             const dealPoint = action.cards.map(x => x.dealPoint).reduce((point, x) => point + x, 0);
