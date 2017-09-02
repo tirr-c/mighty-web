@@ -22,7 +22,7 @@ ReactDOM.render(
     document.getElementById('content')
 );
 
-const url = 'http://localhost:12345';
+const url = 'http://localhost:8181';
 const socket = io(url, { autoConnect: false });
 
 store.subscribe(() => {
