@@ -36,6 +36,7 @@ interface ResetAction {
 interface DealAction {
     type: 'deal';
     cards: Card[];
+    dealMissAvailable: boolean;
 }
 interface PendingCommitAction {
     type: 'pending-commit';
@@ -51,7 +52,7 @@ interface FloorCardsAction {
 export type Action = MemberStateChangedAction | JoinRoomAction | LeaveRoomAction | ReadyAction |
     ResetAction | DealAction | PendingCommitAction | WaitingPresidentAction | FloorCardsAction;
 
-function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: (action: Action) => Action) {
+function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: any) {
     socket.on('join-room', (userId: string, userList: MemberState[]) => {
         console.log('join-room', userId, userList);
         dispatch({
@@ -97,10 +98,15 @@ function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: (action
         if (cardObjects.length !== 10) {
             console.error('!!! Received invalid card code');
         }
+        const dealPoint = cardObjects.map(x => x.dealPoint).reduce((point, x) => point + x, 0);
         dispatch({
             type: 'deal',
-            cards: cardObjects
+            cards: cardObjects,
+            dealMissAvailable: dealPoint <= 0
         });
+        if (dealPoint > 0) {
+            dispatch(decideDealMiss(false));
+        }
     });
     socket.on('commitment-request', (userId: string) => {
         dispatch({
@@ -226,7 +232,7 @@ export function decideDealMiss(dealMiss: boolean) {
                 reject('Not connected to server');
                 return;
             }
-            if (state.game.gameState.phase !== GamePhase.PendingDealMiss) {
+            if (dealMiss && state.game.gameState.phase !== GamePhase.PendingDealMiss) {
                 reject('Not allowed to claim deal miss');
                 return;
             }
