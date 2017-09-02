@@ -1,5 +1,3 @@
-import Random = require('random-js');
-
 export const enum CardSuit {
     Spade = 's',
     Club = 'c',
@@ -124,48 +122,4 @@ export class Card {
         }
         return this.suit + this.rank;
     }
-}
-
-function sampleFromRange(mt: Random.MT19937, l: number, r: number): number {
-    const distance = r - l;
-    if (distance <= 1) return l;
-    const bound = ((2 ** 31) / distance | 0) * distance;
-    while (true) {
-        const sample = mt();
-        const norm = sample < 0 ? ~sample : sample;
-        if (norm < bound) {
-            return norm % distance + l;
-        }
-    }
-}
-
-function shuffle<T>(mt: Random.MT19937, list: T[]): T[] {
-    let n = list.length;
-    const ret = [];
-    const chk = new Array(n).fill(false);
-    function findNext(current = -1) {
-        while (chk[++current]);
-        return current;
-    }
-    while (n) {
-        let sample = sampleFromRange(mt, 0, n);
-        let c = findNext();
-        while (sample--) c = findNext(c);
-        ret.push(list[c]);
-        chk[c] = true;
-        n--;
-    }
-    return ret;
-}
-
-export function shuffleCard(): Card[][] {
-    const mt = Random.engines.mt19937();
-    mt.autoSeed();
-    const hands: Card[][] = [];
-    let left = shuffle(mt, [...new Array(53).keys()].map(Card.fromNumber));
-    for (let i = 0; i < 5; i++) {
-        hands.push(left.slice(0, 10));
-        left = left.slice(10);
-    }
-    return hands.concat(left);
 }
