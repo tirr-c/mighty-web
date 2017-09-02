@@ -1,4 +1,4 @@
-import { Action, Types } from '../actions';
+import { Action, Types } from '~actions';
 
 export const enum Scene {
     Connecting,

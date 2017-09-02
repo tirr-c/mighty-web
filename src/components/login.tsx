@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { State as ReduxState } from '../reducers';
-import { User } from '../actions';
+import { State as ReduxState } from '~reducers';
+import { User } from '~actions';
 
 type Props = {
     nickname: string,

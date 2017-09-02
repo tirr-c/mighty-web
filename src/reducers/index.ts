@@ -1,9 +1,9 @@
+import { combineReducers } from 'redux';
 import * as User from './user';
 import * as Scene from './scene';
 import * as Lobby from './lobby';
 import * as Socket from './socket';
 import * as Game from './game';
-import { combineReducers } from 'redux';
 
 export type State = {
     user: User.State,

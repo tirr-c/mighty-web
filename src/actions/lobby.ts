@@ -1,4 +1,4 @@
-import { State } from '../reducers';
+import { State } from '~reducers';
 
 export type ActionType = 'update-room-list-request' | 'update-room-list';
 

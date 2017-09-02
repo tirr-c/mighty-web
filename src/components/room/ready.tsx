@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { State } from '../../reducers';
-import { GamePhase } from '../../reducers/game';
+import { State } from '~reducers';
+import { GamePhase } from '~reducers/game';
 
 type Props = {
     disabled: boolean,

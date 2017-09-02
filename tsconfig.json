@@ -2,6 +2,17 @@
   "compilerOptions": {
     "sourceMap": true,
     "module": "commonjs",
+    "baseUrl": "./src/",
+    "paths": {
+      "~utils": ["utils"],
+      "~utils/*": ["utils/*"],
+      "~components": ["components"],
+      "~components/*": ["components/*"],
+      "~actions": ["actions"],
+      "~actions/*": ["actions/*"],
+      "~reducers": ["reducers"],
+      "~reducers/*": ["reducers/*"]
+    },
     "noImplicitAny": true,
     "target": "es6",
     "jsx": "react"

@@ -1,4 +1,4 @@
-import { Action } from '../actions';
+import { Action } from '~actions';
 
 type RoomNameCache = { [roomId: string]: string };
 

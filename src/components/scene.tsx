@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { State } from '../reducers';
-import { Scene } from '../reducers/scene';
+import { State } from '~reducers';
+import { Scene } from '~reducers/scene';
 import LoginForm from './login';
 import Lobby from './lobby';
 import Room from './room';

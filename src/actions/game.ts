@@ -1,6 +1,6 @@
-import { State } from '../reducers';
-import { GamePhase } from '../reducers/game';
-import { Card, Giruda } from '../utils';
+import { State } from '~reducers';
+import { GamePhase } from '~reducers/game';
+import { Card, Giruda } from '~utils';
 
 export type ActionType = 'member-state-changed' | 'join-room' | 'leave-room' | 'ready' |
     'reset' | 'deal' | 'pending-commit' | 'waiting-president' | 'floor-cards';

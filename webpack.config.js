@@ -23,7 +23,13 @@ const common = {
         new HtmlWebpackPlugin({ template: 'src/index.html' })
     ],
     resolve: {
-        extensions: ['.ts', '.tsx', '.js']
+        extensions: ['.ts', '.tsx', '.js'],
+        alias: {
+            '~actions': path.resolve(__dirname, 'src/actions'),
+            '~reducers': path.resolve(__dirname, 'src/reducers'),
+            '~components': path.resolve(__dirname, 'src/components'),
+            '~utils': path.resolve(__dirname, 'src/utils')
+        }
     },
     module: {
         rules: [

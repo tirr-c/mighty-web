@@ -1,5 +1,5 @@
-import { Action, Types } from '../actions';
-import { Card } from '../utils';
+import { Action, Types } from '~actions';
+import { Card } from '~utils';
 
 export const enum GamePhase {
     Ready,

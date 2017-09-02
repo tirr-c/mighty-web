@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Game as GameActions } from '../../actions';
-import { State } from '../../reducers';
-import { GamePhase } from '../../reducers/game';
+import { Game as GameActions } from '~actions';
+import { State } from '~reducers';
+import { GamePhase } from '~reducers/game';
 import Game from './game';
 import ReadyControl from './ready';
 

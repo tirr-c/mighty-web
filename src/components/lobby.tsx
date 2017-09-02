@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { State } from '../reducers';
-import { Lobby, Game } from '../actions';
+import { State } from '~reducers';
+import { Lobby, Game } from '~actions';
 
 type Props = {
     roomList: [{ id: string, name: string }],

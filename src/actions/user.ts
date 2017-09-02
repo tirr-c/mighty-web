@@ -1,4 +1,4 @@
-import { State } from '../reducers';
+import { State } from '~reducers';
 
 export type ActionType = 'nickname-change-request' | 'nickname-change-succeed';
 

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { State } from '../../reducers';
-import { GamePhase } from '../../reducers/game';
-import { Card } from '../../utils';
+import { State } from '~reducers';
+import { GamePhase } from '~reducers/game';
+import { Card } from '~utils';
 
 type Props = {
     phase: GamePhase,
