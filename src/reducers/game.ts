@@ -64,10 +64,8 @@ export function reduce(state = initialState, action: Action): State {
             return { ...state, members: members, ready: ready };
         }
         case 'reset': {
-            const ready = state.members.map(
-                x => ({ [x]: false })
-            ).reduce(
-                (ready, x) => ({ ...ready, ...x }), {}
+            const ready = state.members.reduce(
+                (ready, x) => ({ ...ready, [x]: false }), {}
             );
             return { ...state, ready: ready, gameState: initialGameState };
         }

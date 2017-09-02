@@ -3,14 +3,17 @@ import { connect } from 'react-redux';
 import { Game as GameAction } from '~actions';
 import { State } from '~reducers';
 import { GamePhase } from '~reducers/game';
-import { Card } from '~utils';
+import { Card, Giruda } from '~utils';
 import DealMissControl from './deal-miss';
+import CommitControl from './commit';
 
 type Props = {
     phase: GamePhase,
     myTurn: boolean,
     cards: Card[],
-    decideDealMiss: (dealMiss: boolean) => Promise<void>
+    decideDealMiss: (dealMiss: boolean) => Promise<void>,
+    commit: (giruda: Giruda, score: number) => Promise<void>,
+    commitGiveup: () => Promise<void>
 };
 
 class Game extends React.Component<Props> {
@@ -34,6 +37,27 @@ class Game extends React.Component<Props> {
         return '불가능';
     }
 
+    get phaseControl() {
+        switch (this.props.phase) {
+            case GamePhase.PendingDealMiss:
+                return <DealMissControl onDecide={this.props.decideDealMiss} />;
+            case GamePhase.PendingCommitment: {
+                if (this.props.myTurn) {
+                    return (
+                        <CommitControl
+                            previousCommitment={null}
+                            onCommit={this.props.commit} onGiveup={this.props.commitGiveup}
+                            />
+                    );
+                } else {
+                    return null;
+                }
+            }
+            default:
+                return null;
+        }
+    }
+
     render() {
         if (this.props.phase === GamePhase.Ready) {
             return null;
@@ -47,7 +71,7 @@ class Game extends React.Component<Props> {
             <div>
                 {phase}
                 {cardList}
-                {this.props.phase === GamePhase.PendingDealMiss ? <DealMissControl onDecide={this.props.decideDealMiss} /> : null}
+                {this.phaseControl}
             </div>
         );
     }
@@ -64,7 +88,9 @@ function mapStateToProps(state: State) {
 
 function mapDispatchToProps(dispatch: any) {
     return {
-        decideDealMiss: (dealMiss: boolean) => dispatch(GameAction.decideDealMiss(dealMiss))
+        decideDealMiss: (dealMiss: boolean) => dispatch(GameAction.decideDealMiss(dealMiss)),
+        commit: (giruda: Giruda, score: number) => dispatch(GameAction.commit(giruda, score)),
+        commitGiveup: () => dispatch(GameAction.commitGiveup())
     };
 }
 
