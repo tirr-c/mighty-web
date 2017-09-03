@@ -1,4 +1,5 @@
 import { Action, Types } from '~actions';
+import { Commitment } from '~actions/game';
 import { Card } from '~utils';
 
 export const enum GamePhase {
@@ -15,7 +16,9 @@ export const enum GamePhase {
 export type GameState = {
     phase: GamePhase,
     cards: Card[],
-    currentTurn: string
+    currentTurn: string,
+    president: string,
+    currentCommitment: Commitment | null
 };
 export type State = {
     id: string,
@@ -27,7 +30,9 @@ export type State = {
 const initialGameState: GameState = {
     phase: GamePhase.Ready,
     cards: [],
-    currentTurn: ''
+    currentTurn: '',
+    president: '',
+    currentCommitment: null
 };
 const initialState: State = {
     id: '',
@@ -73,9 +78,9 @@ export function reduce(state = initialState, action: Action): State {
             const dealPoint = action.cards.map(x => x.dealPoint).reduce((point, x) => point + x, 0);
             const nextPhase = dealPoint > 0 ? GamePhase.DoneDealMiss : GamePhase.PendingDealMiss;
             const gameState = {
+                ...initialGameState,
                 phase: nextPhase,
-                cards: action.cards,
-                currentTurn: ''
+                cards: action.cards
             };
             return { ...state, gameState: gameState };
         }
@@ -84,6 +89,15 @@ export function reduce(state = initialState, action: Action): State {
                 ...state.gameState,
                 phase: GamePhase.PendingCommitment,
                 currentTurn: action.userId
+            };
+            return { ...state, gameState: gameState };
+        }
+        case 'commitment-confirmed': {
+            const currentCommitment = action.commitment || state.gameState.currentCommitment;
+            const gameState = {
+                ...state.gameState,
+                president: action.userId,
+                currentCommitment: currentCommitment
             };
             return { ...state, gameState: gameState };
         }
@@ -97,6 +111,7 @@ export function reduce(state = initialState, action: Action): State {
         }
         case 'floor-cards': {
             const gameState = {
+                ...state.gameState,
                 phase: GamePhase.CheckCards,
                 cards: state.gameState.cards.concat(action.cards),
                 currentTurn: ''

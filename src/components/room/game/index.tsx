@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Game as GameAction } from '~actions';
+import { Commitment } from '~actions/game';
 import { State } from '~reducers';
 import { GamePhase } from '~reducers/game';
 import { Card, Giruda } from '~utils';
@@ -11,6 +12,7 @@ type Props = {
     phase: GamePhase,
     myTurn: boolean,
     cards: Card[],
+    currentCommitment: Commitment,
     decideDealMiss: (dealMiss: boolean) => Promise<void>,
     commit: (giruda: Giruda, score: number) => Promise<void>,
     commitGiveup: () => Promise<void>
@@ -45,7 +47,7 @@ class Game extends React.Component<Props> {
                 if (this.props.myTurn) {
                     return (
                         <CommitControl
-                            previousCommitment={null}
+                            previousCommitment={this.props.currentCommitment}
                             onCommit={this.props.commit} onGiveup={this.props.commitGiveup}
                             />
                     );
@@ -70,6 +72,7 @@ class Game extends React.Component<Props> {
         return (
             <div>
                 {phase}
+                <div>{`현재 공약: ${CommitControl.commitmentToString(this.props.currentCommitment)}`}</div>
                 {cardList}
                 {this.phaseControl}
             </div>
@@ -78,11 +81,12 @@ class Game extends React.Component<Props> {
 }
 
 function mapStateToProps(state: State) {
-    const { phase, currentTurn, cards } = state.game.gameState;
+    const { phase, currentTurn, cards, currentCommitment } = state.game.gameState;
     return {
         phase: phase,
         myTurn: currentTurn === state.socket.id,
-        cards: cards
+        cards: cards,
+        currentCommitment: currentCommitment
     };
 }
 

@@ -1,11 +1,9 @@
 import * as React from 'react';
+import { Commitment } from '~actions/game';
 import { Card, Giruda } from '~utils';
 
 type Props = {
-    previousCommitment: {
-        giruda: Giruda,
-        score: number
-    } | null,
+    previousCommitment: Commitment | null,
     onCommit: (giruda: Giruda, score: number) => Promise<void>,
     onGiveup: () => Promise<void>
 };
@@ -78,10 +76,23 @@ export default class CommitControl extends React.Component<Props, State> {
         const commitValid = this.commitValid;
         return (
             <div>
+                <div>{`당신이 걸 공약: ${CommitControl.commitmentToString(this.currentCommitment)}`}</div>
                 <input value={this.state.commitText} onChange={this.handleCommitChange} />
                 <button onClick={this.commit} disabled={!commitValid}>공약하기</button>
                 <button onClick={this.props.onGiveup}>출마 포기</button>
             </div>
         );
+    }
+
+    static commitmentToString(commitment: Commitment | null): string {
+        if (commitment === null) return '없음';
+        let girudaStr = '기루 없이';
+        switch (commitment.giruda) {
+            case Giruda.Spade: girudaStr = '스페이드'; break;
+            case Giruda.Diamond: girudaStr = '다이아몬드'; break;
+            case Giruda.Club: girudaStr = '클로버'; break;
+            case Giruda.Heart: girudaStr = '하트'; break;
+        }
+        return `${girudaStr} ${commitment.score}장`;
     }
 }

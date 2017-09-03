@@ -3,11 +3,17 @@ import { GamePhase } from '~reducers/game';
 import { Card, Giruda } from '~utils';
 
 export type ActionType = 'member-state-changed' | 'join-room' | 'leave-room' | 'ready' |
-    'reset' | 'deal' | 'pending-commit' | 'waiting-president' | 'floor-cards';
+    'reset' | 'deal' | 'pending-commit' | 'commitment-confirmed' |
+    'waiting-president' | 'floor-cards';
 
 type MemberState = {
     id: string,
     ready: boolean
+};
+
+export type Commitment = {
+    giruda: Giruda,
+    score: number
 };
 
 interface MemberStateChangedAction {
@@ -42,6 +48,11 @@ interface PendingCommitAction {
     type: 'pending-commit';
     userId: string;
 }
+interface CommitmentConfirmedAction {
+    type: 'commitment-confirmed';
+    userId: string;
+    commitment: Commitment;
+}
 interface WaitingPresidentAction {
     type: 'waiting-president';
 }
@@ -50,7 +61,8 @@ interface FloorCardsAction {
     cards: Card[]
 }
 export type Action = MemberStateChangedAction | JoinRoomAction | LeaveRoomAction | ReadyAction |
-    ResetAction | DealAction | PendingCommitAction | WaitingPresidentAction | FloorCardsAction;
+    ResetAction | DealAction | PendingCommitAction | CommitmentConfirmedAction |
+    WaitingPresidentAction | FloorCardsAction;
 
 function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: any) {
     socket.on('join-room', (userId: string, userList: MemberState[]) => {
@@ -112,6 +124,13 @@ function listen(roomId: string, socket: SocketIOClient.Socket, dispatch: any) {
         dispatch({
             type: 'pending-commit',
             userId: userId
+        });
+    });
+    socket.on('commitment-confirmed', (id: string, commitment: Commitment) => {
+        dispatch({
+            type: 'commitment-confirmed',
+            userId: id,
+            commitment: commitment
         });
     });
     socket.on('waiting-president', () => {
@@ -247,7 +266,7 @@ export function decideDealMiss(dealMiss: boolean) {
     };
 }
 
-function commitInternal(obj: any) {
+function commitInternal(obj: Commitment | null) {
     return (dispatch: (action: Action) => Action, getState: () => State): Promise<void> => {
         return new Promise((resolve, reject) => {
             const state = getState();
